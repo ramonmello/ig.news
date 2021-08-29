@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  ignews_app:
+    container_name: ignews_app
+    build: .
+    tty: true
+    ports:
+      - 3000:3000
+    networks:
+      - ignews-network
+    volumes:
+      - .:/usr/src/app
+
+  stripe_cli:
+    image: stripe/stripe-cli:latest
+    container_name: stripe_cli
+    tty: true
+    networks:
+      - ignews-network
+    command: listen --forward-to ignews_app:3000/api/webhooks --api-key ${STRIPE_API_KEY}
+    depends_on:
+      - ignews_app
+
+networks:
+  ignews-network:
+    driver: bridge
